@@ -33,6 +33,7 @@ var (
   butState int64 = 0
   baseNote int64
   vel int64
+  midiChan int64
 )
 
 func ReadGuitar(c chan *evdev.InputEvent, errs chan error, dev string){
@@ -63,11 +64,11 @@ func SetNote(shift uint32, value int32) {
 
 func NoteOn(stream *portmidi.Stream, note int64, velocity int64){
   playing = note
-  stream.WriteShort(0x90, note, velocity)
+  stream.WriteShort(0x90|(midiChan-1), note, velocity)
 }
 
 func NoteOff(stream *portmidi.Stream, note int64, velocity int64){
-  stream.WriteShort(0x80, note, velocity)
+  stream.WriteShort(0x80|(midiChan-1), note, velocity)
   playing = -1
 }
 
@@ -82,6 +83,7 @@ func main() {
   dev := flag.String("d", "/dev/input/by-id/usb-0810_Twin_USB_Joystick-event-joystick", "The GH controller event device")
   flag.Int64Var(&baseNote, "b", 48, "The base midi note with no button pressed")
   flag.Int64Var(&vel, "v", 100, "Midi note velocity")
+  flag.Int64Var(&midiChan, "c", 1, "Midi channel")
   flag.Parse()
   portmidi.Initialize()
   out, err := portmidi.NewOutputStream(portmidi.GetDefaultOutputDeviceId(), 32, 0)
