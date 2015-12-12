@@ -79,6 +79,11 @@ func SwapNote(stream *portmidi.Stream, newNote int64, velocity int64){
   playing = newNote
 }
 
+func AllNotesOff(stream *portmidi.Stream){
+  stream.WriteShort(0xB0|(midiChan-1), 0x7B, 0x00)
+  playing = -1
+}
+
 func main() {
   dev := flag.String("d", "/dev/input/by-id/usb-0810_Twin_USB_Joystick-event-joystick", "The GH controller event device")
   flag.Int64Var(&baseNote, "b", 48, "The base midi note with no button pressed")
@@ -127,6 +132,8 @@ func main() {
         if playing != -1 {
           SwapNote(out, baseNote + butState + octave, vel)
         }
+      case butStart:
+        AllNotesOff(out)
       }
     case err := <- e:
       fmt.Println(err)
