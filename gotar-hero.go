@@ -73,8 +73,8 @@ func NoteOff(stream *portmidi.Stream, note int64, velocity int64){
 
 func SwapNote(stream *portmidi.Stream, newNote int64, velocity int64){
   oldNote := playing
-  NoteOn(stream, newNote, velocity)
   NoteOff(stream, oldNote, velocity)
+  NoteOn(stream, newNote, velocity)
   playing = newNote
 }
 
